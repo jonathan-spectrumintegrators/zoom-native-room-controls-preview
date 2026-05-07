@@ -104,7 +104,7 @@
                                         </div>
                                     </div>
                                 </template>
-                                <template v-else>
+                                <template v-else-if="port.main_method.type != 'actions'">
                                     <button
                                         class="btn-zoom"
                                         :class="{
@@ -169,7 +169,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div v-else>
+                                    <div v-else-if="method.type != 'actions'">
                                         <button
                                             class="btn-zoom"
                                             :class="{
@@ -325,6 +325,21 @@ export default {
                             json.styles.push(port.id + '.main_method=power');
                         });
                     });
+
+                // Zoom rejects the entire profile if a method has type 'action' but also has a params
+                // array. The 'action' type is for parameterless commands; use 'actions' (plural) when
+                // params are present. Tested on Zoom Room version 6.6.1 (8162).
+                json.adapters.forEach((adapter) => {
+                    adapter.ports.forEach((port) => {
+                        port.methods.forEach((method) => {
+                            if (method.type == 'action' && method.params) {
+                                throw new Error(
+                                    `Method '${port.id}.${method.id}' has type 'action' but includes params. Use type 'actions' when params are present.`
+                                );
+                            }
+                        });
+                    });
+                });
 
                 // Take the information in the styles array and use it to populate the adapters array with
                 // information to better style things inline.  This makes for a clunkier object but does all
