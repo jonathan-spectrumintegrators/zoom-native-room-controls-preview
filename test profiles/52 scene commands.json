@@ -1,0 +1,430 @@
+{
+  "adapters": [
+    {
+      "model": "GenericNetworkAdapter",
+      "ip": "tcp://192.168.49.16:5000",
+      "ports": [
+        {
+          "id": "display",
+          "name": "Display",
+          "methods": [
+            {
+              "id": "power",
+              "name": "Power",
+              "command": "POWR%   \\x0D",
+              "params": [
+                {
+                  "id": "on",
+                  "name": "On",
+                  "value": "1"
+                },
+                {
+                  "id": "off",
+                  "name": "Off",
+                  "value": "0"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "source",
+              "name": "Source",
+              "command": "IAVD%   \\x0D",
+              "params": [
+                {
+                  "id": "hdmi1",
+                  "name": "HDMI 1",
+                  "value": "1"
+                },
+                {
+                  "id": "hdmi2",
+                  "name": "HDMI 2",
+                  "value": "2"
+                },
+                {
+                  "id": "hdmi3",
+                  "name": "HDMI 3",
+                  "value": "3"
+                },
+                {
+                  "id": "hdmi4",
+                  "name": "HDMI 4",
+                  "value": "4"
+                },
+                {
+                  "id": "vga",
+                  "name": "VGA",
+                  "value": "5"
+                },
+                {
+                  "id": "dp",
+                  "name": "DisplayPort",
+                  "value": "6"
+                },
+                {
+                  "id": "dvi",
+                  "name": "DVI",
+                  "value": "7"
+                },
+                {
+                  "id": "component",
+                  "name": "Component",
+                  "value": "8"
+                },
+                {
+                  "id": "composite",
+                  "name": "Composite",
+                  "value": "9"
+                },
+                {
+                  "id": "usb",
+                  "name": "USB",
+                  "value": "10"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "volume",
+              "name": "Volume",
+              "command": "VOLM%   \\x0D",
+              "params": [
+                {
+                  "id": "up",
+                  "name": "Up",
+                  "value": "+"
+                },
+                {
+                  "id": "down",
+                  "name": "Down",
+                  "value": "-"
+                },
+                {
+                  "id": "mute",
+                  "name": "Mute",
+                  "value": "M1"
+                },
+                {
+                  "id": "unmute",
+                  "name": "Unmute",
+                  "value": "M0"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "picture",
+              "name": "Picture Mode",
+              "command": "PICM%   \\x0D",
+              "params": [
+                {
+                  "id": "standard",
+                  "name": "Standard",
+                  "value": "1"
+                },
+                {
+                  "id": "vivid",
+                  "name": "Vivid",
+                  "value": "2"
+                },
+                {
+                  "id": "cinema",
+                  "name": "Cinema",
+                  "value": "3"
+                },
+                {
+                  "id": "sports",
+                  "name": "Sports",
+                  "value": "4"
+                },
+                {
+                  "id": "game",
+                  "name": "Game",
+                  "value": "5"
+                },
+                {
+                  "id": "dynamic",
+                  "name": "Dynamic",
+                  "value": "6"
+                },
+                {
+                  "id": "natural",
+                  "name": "Natural",
+                  "value": "7"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "aspect",
+              "name": "Aspect Ratio",
+              "command": "WIDE%   \\x0D",
+              "params": [
+                {
+                  "id": "auto",
+                  "name": "Auto",
+                  "value": "0"
+                },
+                {
+                  "id": "wide",
+                  "name": "Wide",
+                  "value": "1"
+                },
+                {
+                  "id": "zoom",
+                  "name": "Zoom",
+                  "value": "2"
+                },
+                {
+                  "id": "normal",
+                  "name": "Normal",
+                  "value": "3"
+                },
+                {
+                  "id": "stretch",
+                  "name": "Stretch",
+                  "value": "4"
+                },
+                {
+                  "id": "native",
+                  "name": "Native",
+                  "value": "5"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "menu",
+              "name": "Menu",
+              "command": "MENU%   \\x0D",
+              "params": [
+                {
+                  "id": "open",
+                  "name": "Open",
+                  "value": "1"
+                },
+                {
+                  "id": "close",
+                  "name": "Close",
+                  "value": "0"
+                },
+                {
+                  "id": "up",
+                  "name": "Up",
+                  "value": "U"
+                },
+                {
+                  "id": "down",
+                  "name": "Down",
+                  "value": "D"
+                },
+                {
+                  "id": "left",
+                  "name": "Left",
+                  "value": "L"
+                },
+                {
+                  "id": "right",
+                  "name": "Right",
+                  "value": "R"
+                },
+                {
+                  "id": "ok",
+                  "name": "OK",
+                  "value": "K"
+                },
+                {
+                  "id": "back",
+                  "name": "Back",
+                  "value": "B"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "numpad",
+              "name": "Numpad",
+              "command": "DKEY%   \\x0D",
+              "params": [
+                {
+                  "id": "n0",
+                  "name": "0",
+                  "value": "0"
+                },
+                {
+                  "id": "n1",
+                  "name": "1",
+                  "value": "1"
+                },
+                {
+                  "id": "n2",
+                  "name": "2",
+                  "value": "2"
+                },
+                {
+                  "id": "n3",
+                  "name": "3",
+                  "value": "3"
+                },
+                {
+                  "id": "n4",
+                  "name": "4",
+                  "value": "4"
+                },
+                {
+                  "id": "n5",
+                  "name": "5",
+                  "value": "5"
+                },
+                {
+                  "id": "n6",
+                  "name": "6",
+                  "value": "6"
+                },
+                {
+                  "id": "n7",
+                  "name": "7",
+                  "value": "7"
+                },
+                {
+                  "id": "n8",
+                  "name": "8",
+                  "value": "8"
+                },
+                {
+                  "id": "n9",
+                  "name": "9",
+                  "value": "9"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "channel",
+              "name": "Channel",
+              "command": "CHAN%   \\x0D",
+              "params": [
+                {
+                  "id": "up",
+                  "name": "Up",
+                  "value": "+"
+                },
+                {
+                  "id": "down",
+                  "name": "Down",
+                  "value": "-"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "info",
+              "name": "Info",
+              "command": "INFO%   \\x0D",
+              "params": [
+                {
+                  "id": "show",
+                  "name": "Show",
+                  "value": "1"
+                }
+              ],
+              "type": "actions"
+            },
+            {
+              "id": "sleep",
+              "name": "Sleep Timer",
+              "command": "OFTM%   \\x0D",
+              "params": [
+                {
+                  "id": "min30",
+                  "name": "30 min",
+                  "value": "30"
+                },
+                {
+                  "id": "min60",
+                  "name": "60 min",
+                  "value": "60"
+                }
+              ],
+              "type": "actions"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "fire_all",
+      "name": "Fire All Commands",
+      "icon": "icon_alert",
+      "commands": [
+        "display.power.on",
+        "display.power.off",
+        "display.source.hdmi1",
+        "display.source.hdmi2",
+        "display.source.hdmi3",
+        "display.source.hdmi4",
+        "display.source.vga",
+        "display.source.dp",
+        "display.source.dvi",
+        "display.source.component",
+        "display.source.composite",
+        "display.source.usb",
+        "display.volume.up",
+        "display.volume.down",
+        "display.volume.mute",
+        "display.volume.unmute",
+        "display.picture.standard",
+        "display.picture.vivid",
+        "display.picture.cinema",
+        "display.picture.sports",
+        "display.picture.game",
+        "display.picture.dynamic",
+        "display.picture.natural",
+        "display.aspect.auto",
+        "display.aspect.wide",
+        "display.aspect.zoom",
+        "display.aspect.normal",
+        "display.aspect.stretch",
+        "display.aspect.native",
+        "display.menu.open",
+        "display.menu.close",
+        "display.menu.up",
+        "display.menu.down",
+        "display.menu.left",
+        "display.menu.right",
+        "display.menu.ok",
+        "display.menu.back",
+        "display.numpad.n0",
+        "display.numpad.n1",
+        "display.numpad.n2",
+        "display.numpad.n3",
+        "display.numpad.n4",
+        "display.numpad.n5",
+        "display.numpad.n6",
+        "display.numpad.n7",
+        "display.numpad.n8",
+        "display.numpad.n9",
+        "display.channel.up",
+        "display.channel.down",
+        "display.info.show",
+        "display.sleep.min30",
+        "display.sleep.min60"
+      ]
+    }
+  ],
+  "styles": [
+    "display.main_method=power",
+    "display.icon=icon_tv",
+    "display.source.invisible=true",
+    "display.volume.invisible=true",
+    "display.picture.invisible=true",
+    "display.aspect.invisible=true",
+    "display.menu.invisible=true",
+    "display.numpad.invisible=true",
+    "display.channel.invisible=true",
+    "display.info.invisible=true",
+    "display.sleep.invisible=true"
+  ]
+}

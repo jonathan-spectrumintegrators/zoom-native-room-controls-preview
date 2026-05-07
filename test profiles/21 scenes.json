@@ -1,0 +1,293 @@
+{
+    "adapters": [
+        {
+            "model": "GenericNetworkAdapter",
+            "ip": "tcp://192.168.49.16:5000",
+            "ports": [
+                {
+                    "id": "display",
+                    "name": "Display",
+                    "methods": [
+                        {
+                            "id": "power",
+                            "name": "Power",
+                            "command": "POWR%   \\x0D",
+                            "params": [
+                                {
+                                    "id": "on",
+                                    "name": "On",
+                                    "value": "1"
+                                },
+                                {
+                                    "id": "off",
+                                    "name": "Off",
+                                    "value": "0"
+                                }
+                            ],
+                            "type": "actions"
+                        },
+                        {
+                            "id": "source",
+                            "name": "Source",
+                            "command": "IAVD%   \\x0D",
+                            "params": [
+                                {
+                                    "id": "1",
+                                    "name": "Input 1",
+                                    "value": "1"
+                                },
+                                {
+                                    "id": "2",
+                                    "name": "Input 2",
+                                    "value": "2"
+                                },
+                                {
+                                    "id": "3",
+                                    "name": "Input 3",
+                                    "value": "3"
+                                },
+                                {
+                                    "id": "4",
+                                    "name": "Input 4",
+                                    "value": "4"
+                                },
+                                {
+                                    "id": "5",
+                                    "name": "Input 5",
+                                    "value": "5"
+                                },
+                                {
+                                    "id": "6",
+                                    "name": "Input 6",
+                                    "value": "6"
+                                },
+                                {
+                                    "id": "7",
+                                    "name": "Input 7",
+                                    "value": "7"
+                                },
+                                {
+                                    "id": "8",
+                                    "name": "Input 8",
+                                    "value": "8"
+                                },
+                                {
+                                    "id": "9",
+                                    "name": "Input 9",
+                                    "value": "9"
+                                },
+                                {
+                                    "id": "10",
+                                    "name": "Input 10",
+                                    "value": "10"
+                                },
+                                {
+                                    "id": "11",
+                                    "name": "Input 11",
+                                    "value": "11"
+                                },
+                                {
+                                    "id": "12",
+                                    "name": "Input 12",
+                                    "value": "12"
+                                },
+                                {
+                                    "id": "13",
+                                    "name": "Input 13",
+                                    "value": "13"
+                                },
+                                {
+                                    "id": "14",
+                                    "name": "Input 14",
+                                    "value": "14"
+                                },
+                                {
+                                    "id": "15",
+                                    "name": "Input 15",
+                                    "value": "15"
+                                },
+                                {
+                                    "id": "16",
+                                    "name": "Input 16",
+                                    "value": "16"
+                                },
+                                {
+                                    "id": "17",
+                                    "name": "Input 17",
+                                    "value": "17"
+                                },
+                                {
+                                    "id": "18",
+                                    "name": "Input 18",
+                                    "value": "18"
+                                },
+                                {
+                                    "id": "19",
+                                    "name": "Input 19",
+                                    "value": "19"
+                                }
+                            ],
+                            "type": "actions"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "scenes": [
+        {
+            "id": "scene_01",
+            "name": "Power On",
+            "icon": "icon_power",
+            "commands": [
+                "display.power.on"
+            ]
+        },
+        {
+            "id": "scene_02",
+            "name": "Power Off",
+            "icon": "icon_power",
+            "commands": [
+                "display.power.off"
+            ]
+        },
+        {
+            "id": "scene_03",
+            "name": "Input 1",
+            "commands": [
+                "display.source.1"
+            ]
+        },
+        {
+            "id": "scene_04",
+            "name": "Input 2",
+            "commands": [
+                "display.source.2"
+            ]
+        },
+        {
+            "id": "scene_05",
+            "name": "Input 3",
+            "commands": [
+                "display.source.3"
+            ]
+        },
+        {
+            "id": "scene_06",
+            "name": "Input 4",
+            "commands": [
+                "display.source.4"
+            ]
+        },
+        {
+            "id": "scene_07",
+            "name": "Input 5",
+            "commands": [
+                "display.source.5"
+            ]
+        },
+        {
+            "id": "scene_08",
+            "name": "Input 6",
+            "commands": [
+                "display.source.6"
+            ]
+        },
+        {
+            "id": "scene_09",
+            "name": "Input 7",
+            "commands": [
+                "display.source.7"
+            ]
+        },
+        {
+            "id": "scene_10",
+            "name": "Input 8",
+            "commands": [
+                "display.source.8"
+            ]
+        },
+        {
+            "id": "scene_11",
+            "name": "Input 9",
+            "commands": [
+                "display.source.9"
+            ]
+        },
+        {
+            "id": "scene_12",
+            "name": "Input 10",
+            "commands": [
+                "display.source.10"
+            ]
+        },
+        {
+            "id": "scene_13",
+            "name": "Input 11",
+            "commands": [
+                "display.source.11"
+            ]
+        },
+        {
+            "id": "scene_14",
+            "name": "Input 12",
+            "commands": [
+                "display.source.12"
+            ]
+        },
+        {
+            "id": "scene_15",
+            "name": "Input 13",
+            "commands": [
+                "display.source.13"
+            ]
+        },
+        {
+            "id": "scene_16",
+            "name": "Input 14",
+            "commands": [
+                "display.source.14"
+            ]
+        },
+        {
+            "id": "scene_17",
+            "name": "Input 15",
+            "commands": [
+                "display.source.15"
+            ]
+        },
+        {
+            "id": "scene_18",
+            "name": "Input 16",
+            "commands": [
+                "display.source.16"
+            ]
+        },
+        {
+            "id": "scene_19",
+            "name": "Input 17",
+            "commands": [
+                "display.source.17"
+            ]
+        },
+        {
+            "id": "scene_20",
+            "name": "Input 18",
+            "commands": [
+                "display.source.18"
+            ]
+        },
+        {
+            "id": "scene_21",
+            "name": "Input 19",
+            "commands": [
+                "display.source.19"
+            ]
+        }
+    ],
+    "styles": [
+        "display.main_method=power",
+        "display.icon=icon_tv",
+        "display.source.invisible=true"
+    ]
+}

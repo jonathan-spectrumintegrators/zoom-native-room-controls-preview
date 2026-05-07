@@ -1,0 +1,91 @@
+{
+    "adapters": [
+        {
+            "model": "GenericNetworkAdapter",
+            "ip": "tcp://192.168.49.16:5000",
+            "ports": [
+                {
+                    "id": "test",
+                    "name": "Test",
+                    "methods": [
+                        {
+                            "id": "ping",
+                            "name": "Ping",
+                            "command": "ping\\x0D",
+                            "params": [
+                                {
+                                    "id": "now",
+                                    "name": "Now",
+                                    "value": "now"
+                                }
+                            ],
+                            "type": "actions"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "scenes": [
+        {
+            "id": "v_filled",
+            "name": "filled",
+            "icon": "mdi:phone:filled",
+            "commands": [
+                "test.ping.now"
+            ]
+        },
+        {
+            "id": "v_outlined",
+            "name": "outlined",
+            "icon": "mdi:phone:outlined",
+            "commands": [
+                "test.ping.now"
+            ]
+        },
+        {
+            "id": "v_rounded",
+            "name": "rounded",
+            "icon": "mdi:phone:rounded",
+            "commands": [
+                "test.ping.now"
+            ]
+        },
+        {
+            "id": "v_sharp",
+            "name": "sharp",
+            "icon": "mdi:phone:sharp",
+            "commands": [
+                "test.ping.now"
+            ]
+        },
+        {
+            "id": "v_two_tone",
+            "name": "two_tone",
+            "icon": "mdi:phone:two_tone",
+            "commands": [
+                "test.ping.now"
+            ]
+        },
+        {
+            "id": "v_no_variant",
+            "name": "no variant",
+            "icon": "mdi:phone",
+            "commands": [
+                "test.ping.now"
+            ]
+        },
+        {
+            "id": "v_dangling",
+            "name": "dangling :",
+            "icon": "mdi:phone:",
+            "commands": [
+                "test.ping.now"
+            ]
+        }
+    ],
+    "styles": [
+        "test.main_method=ping",
+        "test.icon=mdi:phone:two_tone"
+    ]
+}

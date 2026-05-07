@@ -29,6 +29,37 @@
             <div
                 id="zoom-controls"
                 v-if="calculatedControls != null">
+                <div
+                    class="scenes-section"
+                    v-if="calculatedControls.scenes && calculatedControls.scenes.length > 0">
+                    <div class="section-header">
+                        <p class="section-label">Scenes</p>
+                        <button
+                            v-if="calculatedControls.scenes.length > 8"
+                            class="btn-collapse"
+                            :class="{ expanded: scenesExpanded }"
+                            @click="scenesExpanded = !scenesExpanded">
+                            <span class="material-icons">keyboard_arrow_down</span>
+                        </button>
+                    </div>
+                    <div class="scenes-grid">
+                        <button
+                            v-for="scene in visibleScenes"
+                            class="btn-scene"
+                            @click="sceneClick(scene)">
+                            <span
+                                v-if="scene.icon && scene.icon.startsWith('mdi:')"
+                                :class="getMaterialIconClass(scene.icon)"
+                                >{{ getMaterialIconName(scene.icon) }}</span
+                            >
+                            <img
+                                v-else-if="scene.icon"
+                                :src="getIconUrl(scene.icon)" />
+                            <p>{{ scene.name || scene.id }}</p>
+                        </button>
+                    </div>
+                </div>
+                <p class="section-label">Devices</p>
                 <template v-for="adapter in calculatedControls.adapters">
                     <div
                         v-for="port in adapter.ports"
@@ -185,6 +216,7 @@ export default {
         errorMessage: '',
         target: '',
         command: '',
+        scenesExpanded: false,
     }),
     methods: {
         getIconUrl(iconName) {
@@ -231,22 +263,34 @@ export default {
             }
         }
         },
+        formatCommand(adapter, port, method, param) {
+            if (adapter.model == 'iTachIP2CC') {
+                return `Relay ${param.position} ${param.name}`;
+            }
+            let command = method.command;
+            if (method.type == 'actions' && param) {
+                command = command.replace('%', param.value);
+            }
+            return command;
+        },
         zoomClick(adapter, port, method, param) {
             this.target = port.id;
-
-            if (adapter.model == 'iTachIP2CC') {
-                this.command = `Relay ${param.position} ${param.name}`;
-            } else {
-                this.command = method.command;
-                if (method.type == 'actions') {
-                    this.command = this.command.replace('%', param.value);
-                }
-            }
+            this.command = this.formatCommand(adapter, port, method, param);
+        },
+        sceneClick(scene) {
+            this.target = scene.id;
+            this.command = scene.resolvedCommands.join('\n');
         },
     },
     computed: {
         exampleJson() {
             return exampleJson;
+        },
+        visibleScenes() {
+            if (!this.calculatedControls || !this.calculatedControls.scenes) return [];
+            const scenes = this.calculatedControls.scenes;
+            if (this.scenesExpanded || scenes.length <= 8) return scenes;
+            return scenes.slice(0, 8);
         },
         calculatedControls() {
             try {
@@ -387,6 +431,71 @@ export default {
                     });
                 });
 
+                // Process scenes: validate structure and pre-resolve each command string
+                // (e.g. "light1.power.on") into the actual formatted command that would be sent.
+                if (json.scenes) {
+                    if (json.scenes.length > 20) {
+                        throw new Error("Scenes array can contain at most 20 scenes");
+                    }
+
+                    json.scenes.forEach((scene) => {
+                        if (!scene.id) {
+                            throw new Error("Scene is missing required 'id' field");
+                        }
+                        if (!Array.isArray(scene.commands)) {
+                            throw new Error(`Scene '${scene.id}' is missing required 'commands' array`);
+                        }
+                        // Zoom's docs state: "Today, a maximum of 20 scenes can be configured.
+                        // Within those scenes, a maximum of 50 independent commands are supported."
+                        // The 20-scene cap is enforced, but an actual Zoom Room running version
+                        // 6.6.1 (8162) accepted a scene with 52 commands and executed all of them.
+                        // Leaving this check disabled until the cap is observed in practice.
+                        // if (scene.commands.length > 50) {
+                        //     throw new Error(`Scene '${scene.id}' has more than 50 commands (max 50)`);
+                        // }
+
+                        scene.resolvedCommands = scene.commands.map((commandRef) => {
+                            let [portId, methodId, paramId] = commandRef.split('.');
+
+                            let adapter, port;
+                            json.adapters.find((a) => {
+                                let foundPort = a.ports.find((p) => p.id == portId);
+                                if (foundPort) {
+                                    adapter = a;
+                                    port = foundPort;
+                                    return true;
+                                }
+                                return false;
+                            });
+
+                            if (!port) {
+                                throw new Error(
+                                    `Scene '${scene.id}' references unknown port '${portId}' in command '${commandRef}'`
+                                );
+                            }
+
+                            let method = port.methods.find((m) => m.id == methodId);
+                            if (!method) {
+                                throw new Error(
+                                    `Scene '${scene.id}' references unknown method '${methodId}' on port '${portId}' in command '${commandRef}'`
+                                );
+                            }
+
+                            let param;
+                            if (paramId) {
+                                param = method.params && method.params.find((p) => p.id == paramId);
+                                if (!param) {
+                                    throw new Error(
+                                        `Scene '${scene.id}' references unknown param '${paramId}' on method '${portId}.${methodId}' in command '${commandRef}'`
+                                    );
+                                }
+                            }
+
+                            return this.formatCommand(adapter, port, method, param);
+                        });
+                    });
+                }
+
                 // Zoom has a bug where an empty rule needs to be fully empty or the json fails to load, even if it is proper json.
                 // "meeting_started": [] works
                 // "meeting_started": [ ] will fail
@@ -461,6 +570,9 @@ $zoom-button-height: 58px;
                 text-align: left;
                 width: 100%;
                 font-size: 1rem;
+                white-space: pre-line;
+                max-height: 200px;
+                overflow-y: auto;
             }
         }
     }
@@ -486,10 +598,92 @@ $zoom-button-height: 58px;
         #zoom-controls {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: stretch;
             justify-content: flex-start;
             gap: 1rem;
             width: $zoom-panel-width;
+
+            .section-label {
+                font-size: 16px;
+                font-weight: 500;
+                color: $color-text-dark;
+                opacity: 0.7;
+                margin-left: 4px;
+            }
+
+            .scenes-section {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+
+                .section-header {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding-right: 4px;
+                }
+
+                .btn-collapse {
+                    @extend %btn-shared;
+
+                    border: 1px solid $color-border;
+                    border-radius: 50%;
+                    background: transparent;
+                    color: $color-text-dark;
+                    width: 28px;
+                    height: 28px;
+                    padding: 0;
+                    line-height: 1;
+
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    .material-icons {
+                        font-size: 20px;
+                        transition: transform 0.15s ease-in-out;
+                    }
+
+                    &.expanded .material-icons {
+                        transform: rotate(180deg);
+                    }
+                }
+
+                .scenes-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 1rem;
+                }
+
+                .btn-scene {
+                    @extend %btn-shared;
+
+                    border: none;
+                    border-radius: 10px;
+                    background: $color-zoom-port-background;
+                    color: $color-text-dark;
+                    font-size: 19px;
+                    font-weight: bold;
+                    padding: 22px 30px;
+                    min-height: $zoom-button-height;
+                    text-align: left;
+
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 1rem;
+
+                    p {
+                        white-space: normal;
+                        overflow-wrap: anywhere;
+                    }
+
+                    &:active {
+                        background: darken($color-zoom-port-background, 5);
+                    }
+                }
+            }
 
             .port {
                 border-radius: 10px;

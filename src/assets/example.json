@@ -206,6 +206,29 @@
         "voice_lift.main_method=voice_lift",
         "voice_lift.icon=mdi:mic"
     ],
+    "scenes": [
+        {
+            "id": "scene_presentation",
+            "name": "Presentation Mode",
+            "icon": "icon_projector",
+            "commands": [
+                "cc_light.power.off",
+                "cc_projector.power.on",
+                "generic_curtain.power.off"
+            ]
+        },
+        {
+            "id": "scene_meeting",
+            "name": "Meeting Mode",
+            "icon": "mdi:groups",
+            "commands": [
+                "cc_light.power.on",
+                "cc_projector.power.off",
+                "generic_curtain.power.on",
+                "voice_lift.voice_lift.on"
+            ]
+        }
+    ],
     "rules": {
         "meeting_started": [
             "cc_light.power.on",
