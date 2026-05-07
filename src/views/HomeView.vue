@@ -9,13 +9,13 @@
             <div
                 id="zoom-output"
                 v-if="target">
-                <p class="zoom-output-label">Target:</p>
+                <p class="zoom-output-label">Event:</p>
                 <p
                     class="zoom-output-content"
                     id="zoom-output-target">
                     {{ target }}
                 </p>
-                <p class="zoom-output-label">Command:</p>
+                <p class="zoom-output-label">Command(s):</p>
                 <p
                     class="zoom-output-content"
                     id="zoom-output-command">
@@ -265,16 +265,16 @@ export default {
         },
         formatCommand(adapter, port, method, param) {
             if (adapter.model == 'iTachIP2CC') {
-                return `Relay ${param.position} ${param.name}`;
+                return `${adapter.ip}: Relay ${param.position} ${param.name}`;
             }
             let command = method.command;
             if (method.type == 'actions' && param) {
                 command = command.replace('%', param.value);
             }
-            return command;
+            return `${adapter.ip}: ${command}`;
         },
         zoomClick(adapter, port, method, param) {
-            this.target = port.id;
+            this.target = param ? `${port.id}.${method.id}.${param.id}` : `${port.id}.${method.id}`;
             this.command = this.formatCommand(adapter, port, method, param);
         },
         sceneClick(scene) {
