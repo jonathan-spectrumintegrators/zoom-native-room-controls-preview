@@ -204,7 +204,7 @@
         "generic_curtain.main_method=power",
         "generic_curtain.icon=icon_curtain",
         "voice_lift.main_method=voice_lift",
-        "voice_lift.icon=mdi:mic"
+        "voice_lift.icon=mdi:mic:filled"
     ],
     "scenes": [
         {
@@ -220,7 +220,7 @@
         {
             "id": "scene_meeting",
             "name": "Meeting Mode",
-            "icon": "mdi:groups",
+            "icon": "mdi:groups:filled",
             "commands": [
                 "cc_light.power.on",
                 "cc_projector.power.off",

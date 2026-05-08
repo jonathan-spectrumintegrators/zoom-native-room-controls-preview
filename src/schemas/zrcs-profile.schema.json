@@ -1,0 +1,536 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://spectrumintegrators.com/schemas/zrcs-profile.schema.json",
+  "title": "Zoom Room Control Profile",
+  "description": "Schema for Zoom Room Control System (ZRCS) profile JSON files. Defines adapters (iTach IP2SL, iTach IP2CC, GenericNetworkAdapter), scenes, automation rules, UI styles, and response filters.",
+  "type": "object",
+  "required": [
+    "adapters"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "URL of the JSON Schema this profile conforms to. Used by editors (VS Code, etc.) to enable validation, autocomplete, and hover documentation. Has no runtime effect \u2014 Zoom Rooms ignores it.",
+      "format": "uri"
+    },
+    "info": {
+      "type": "object",
+      "description": "Optional metadata header. Ignored by Zoom Rooms \u2014 purely for human/tooling reference.",
+      "additionalProperties": false,
+      "properties": {
+        "customer": {
+          "type": "string",
+          "description": "Customer name."
+        },
+        "location": {
+          "type": "string",
+          "description": "Site or building location."
+        },
+        "job": {
+          "type": "string",
+          "description": "Job number (e.g. 'SPECT-1234')."
+        },
+        "displayType": {
+          "type": "string",
+          "description": "Display make/model the profile targets."
+        },
+        "automation": {
+          "type": "string",
+          "description": "Automation system or scope notes."
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "Author of the profile."
+        },
+        "createdDate": {
+          "type": "string",
+          "description": "Date the profile was created (ISO 8601 recommended, e.g. '2026-05-04')."
+        },
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      }
+    },
+    "adapters": {
+      "type": "array",
+      "description": "Adapters define connected hardware and the devices/commands they expose.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/adapter"
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "description": "Scene buttons rendered at the top of the controls page (above individual device controls). Up to 20 scenes, each running up to 50 commands per press. Omit the key entirely if there are no scenes \u2014 Zoom Rooms will fail to load profiles containing empty arrays.",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": {
+        "$ref": "#/definitions/scene"
+      }
+    },
+    "styles": {
+      "type": "array",
+      "description": "UI style overrides expressed as dot-notation 'key=value' strings. Also accepts the special token 'zr_event_only=true' to hide the Native Room Controls UI entirely so the Room Controls button launches directly into a Zoom App. Omit the key entirely if there are no styles \u2014 Zoom Rooms will fail to load profiles containing empty arrays.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/styleEntry"
+      }
+    },
+    "rules": {
+      "type": "object",
+      "description": "Maps automation events (built-in zr_* events or custom events triggered by response filters) to arrays of commands to execute. Omit any event key entirely if it has no commands \u2014 Zoom Rooms will fail to load profiles containing empty arrays (e.g. 'meeting_started: []').",
+      "additionalProperties": {
+        "type": "array",
+        "minItems": 1,
+        "items": {
+          "$ref": "#/definitions/commandRef"
+        }
+      },
+      "properties": {
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      }
+    },
+    "response_filters": {
+      "type": "array",
+      "description": "Regex filters applied to data received from devices. When a filter matches, its trigger_event fires the matching rule. Omit the key entirely if there are no filters \u2014 Zoom Rooms will fail to load profiles containing empty arrays.",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/responseFilter"
+      }
+    },
+    "$comment": {
+      "type": "string",
+      "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+    }
+  },
+  "definitions": {
+    "adapter": {
+      "type": "object",
+      "required": [
+        "model",
+        "ports"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "model": {
+          "type": "string",
+          "enum": [
+            "iTachIP2SL",
+            "iTachIP2CC",
+            "GenericNetworkAdapter"
+          ],
+          "description": "Adapter hardware model. iTachIP2SL = Global Cache iTach IP-to-Serial. iTachIP2CC = iTach IP-to-Contact-Closure (relays). GenericNetworkAdapter = arbitrary TCP/UDP socket device."
+        },
+        "ip": {
+          "type": "string",
+          "description": "For iTach adapters: a private IPv4 address (RFC 1918 only \u2014 e.g. '10.100.87.43', '192.168.1.50'). For GenericNetworkAdapter: a URL of the form 'tcp://<private-ipv4>:<port>' or 'udp://<private-ipv4>:<port>'. Hostnames are not allowed; public IPs are rejected by Zoom."
+        },
+        "uuid": {
+          "type": "string",
+          "description": "iTach beacon UUID (e.g. 'GlobalCache_000C1E051AEE'). Used for auto-discovery via UDP multicast when 'ip' is not provided."
+        },
+        "ports": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/port"
+          }
+        },
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "ip"
+          ]
+        },
+        {
+          "required": [
+            "uuid"
+          ]
+        }
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "model": {
+                "const": "iTachIP2SL"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "ip": {
+                "$ref": "#/definitions/privateIpv4"
+              },
+              "ports": {
+                "items": {
+                  "required": [
+                    "id",
+                    "settings",
+                    "methods"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "model": {
+                "const": "iTachIP2CC"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "ip": {
+                "$ref": "#/definitions/privateIpv4"
+              },
+              "ports": {
+                "items": {
+                  "required": [
+                    "id",
+                    "position"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "model": {
+                "const": "GenericNetworkAdapter"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "ip": {
+                "$ref": "#/definitions/genericNetworkUrl"
+              },
+              "ports": {
+                "items": {
+                  "required": [
+                    "id",
+                    "methods"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "privateIpv4": {
+      "type": "string",
+      "description": "IPv4 address in an RFC 1918 private range (10.0.0.0/8, 172.16.0.0/12, or 192.168.0.0/16). Zoom Rooms rejects profiles containing public IPs (ZRCSErrorCode_IP_Is_Public).",
+      "pattern": "^(10\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|172\\.(1[6-9]|2[0-9]|3[01])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|192\\.168\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9]))$"
+    },
+    "genericNetworkUrl": {
+      "type": "string",
+      "description": "GenericNetworkAdapter URL of the form 'tcp://<host>:<port>' or 'udp://<host>:<port>'. Host may be a private IPv4 address (RFC 1918), the limited broadcast address 255.255.255.255 (used for UDP broadcasts like Wake-on-LAN), or a hostname \u2014 Zoom Rooms supports all three in current software versions per the published docs and observed behavior. Anything else that looks like a numeric IP must fall in a private range; public IPs are rejected by Zoom (ZRCSErrorCode_IP_Is_Public). Port must be in the range 1-65535.",
+      "pattern": "^(tcp|udp)://(10\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|172\\.(1[6-9]|2[0-9]|3[01])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|192\\.168\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])|255\\.255\\.255\\.255|(?![0-9.]+:)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*):(6553[0-5]|655[0-2][0-9]|65[0-4][0-9]{2}|6[0-4][0-9]{3}|[1-5][0-9]{4}|[1-9][0-9]{0,3})$"
+    },
+    "port": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Device identifier referenced by commands, rules, scenes, and styles.",
+          "pattern": "^[A-Za-z0-9_]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable device name shown in the Zoom Rooms UI. Optional; falls back to id."
+        },
+        "position": {
+          "type": "integer",
+          "description": "Relay position on an iTachIP2CC (1-3).",
+          "minimum": 1,
+          "maximum": 3
+        },
+        "settings": {
+          "type": "object",
+          "description": "Serial port settings for iTachIP2SL ports.",
+          "required": [
+            "baud_rate",
+            "flow_control",
+            "parity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "baud_rate": {
+              "type": "string",
+              "enum": [
+                "300",
+                "1200",
+                "2400",
+                "4800",
+                "9600",
+                "19200",
+                "38400",
+                "57600",
+                "115200"
+              ]
+            },
+            "flow_control": {
+              "type": "string",
+              "enum": [
+                "FLOW_NONE",
+                "FLOW_HARDWARE"
+              ]
+            },
+            "parity": {
+              "type": "string",
+              "enum": [
+                "PARITY_NO",
+                "PARITY_ODD",
+                "PARITY_EVEN"
+              ]
+            },
+            "$comment": {
+              "type": "string",
+              "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+            }
+          }
+        },
+        "methods": {
+          "type": "array",
+          "description": "Control methods exposed by this device. Auto-generated as a single 'power' method for iTachIP2CC ports. Omit the key entirely if there are no methods \u2014 Zoom Rooms will fail to load profiles containing empty arrays.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/method"
+          }
+        },
+        "response_filter": {
+          "type": "array",
+          "description": "Names of response_filters (defined at the top level) to apply to data received on this port. Omit the key entirely if no filters apply \u2014 Zoom Rooms will fail to load profiles containing empty arrays.",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      }
+    },
+    "method": {
+      "type": "object",
+      "required": [
+        "id",
+        "command",
+        "type"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Method identifier, referenced as <deviceId>.<methodId> in commands.",
+          "pattern": "^[A-Za-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string",
+          "description": "Command payload sent to the device. Supports raw escapes (e.g. '\\xAA\\xBB') for hex bytes, or a UTF-8 string. Use '%' as a placeholder where a param value should be substituted. If the command contains '%', a 'params' array must also be provided. The token '<id>.<method>.%' is also accepted as a self-reference."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "action",
+            "actions"
+          ],
+          "description": "Method type. 'actions' (plural) is for commands that take a substituted parameter \u2014 'params' must be present, otherwise Zoom Rooms loads the profile but silently renders no buttons for the method (verified on Zoom Room 6.6.1). 'action' (singular) is a fixed command with no substitution \u2014 'params' must be absent, otherwise Zoom rejects the entire profile. The Zoom-supplied DTEN TV example uses 'action' for power (no '%' in the command, no params)."
+        },
+        "params": {
+          "type": "array",
+          "description": "Parameter values that substitute into the '%' placeholder in 'command'. Required only when the command string actually contains a '%' substitution.",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/definitions/param"
+          }
+        },
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      },
+      "allOf": [
+        {
+          "comment": "Params is required iff the command contains a '%' substitution placeholder. We treat the presence of '%' anywhere in the command as the trigger \u2014 devices like the JVIS projector use literal '%1' inside their protocol, but if there's any '%' at all, params provides the value.",
+          "if": {
+            "properties": {
+              "command": {
+                "pattern": "%"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "params"
+            ]
+          }
+        },
+        {
+          "comment": "type='action' is for parameterless commands. If params is present, Zoom rejects the entire profile (verified on Zoom Room 6.6.1).",
+          "if": {
+            "properties": {
+              "type": {
+                "const": "action"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "params"
+              ]
+            }
+          }
+        },
+        {
+          "comment": "type='actions' requires params. Without params, Zoom loads the profile but silently renders no buttons for the method (verified on Zoom Room 6.6.1).",
+          "if": {
+            "properties": {
+              "type": {
+                "const": "actions"
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "required": [
+              "params"
+            ]
+          }
+        }
+      ]
+    },
+    "param": {
+      "type": "object",
+      "required": [
+        "id",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_]+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "description": "String substituted into the method's command in place of '%'. Supports hex escapes."
+        },
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      }
+    },
+    "scene": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "commands"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array",
+          "description": "Up to 50 commands executed sequentially when the scene button is pressed.",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/definitions/commandRef"
+          }
+        },
+        "icon": {
+          "$ref": "#/definitions/iconValue",
+          "description": "Optional icon for the scene button. Either a built-in token (e.g. 'icon_alert') or an MDI reference 'mdi:<name>:<style>'."
+        },
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      }
+    },
+    "iconValue": {
+      "type": "string",
+      "description": "Either a built-in icon token (e.g. 'icon_projector' \u2014 Zoom built-ins all start with 'icon_') or an MDI reference of the form 'mdi:<icon_name>:<style_name>'. Allowed style_names are filled, outlined, rounded, sharp, two_tone (all lowercase, spaces in icon_name replaced with underscores).",
+      "pattern": "^(icon_[A-Za-z0-9_]+|mdi:[A-Za-z0-9_]+:(filled|outlined|rounded|sharp|two_tone))$"
+    },
+    "commandRef": {
+      "type": "string",
+      "description": "Reference of the form '<deviceId>.<methodId>' (for type=action) or '<deviceId>.<methodId>.<paramId>' (for type=actions).",
+      "pattern": "^[A-Za-z0-9_]+\\.[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)?$"
+    },
+    "responseFilter": {
+      "type": "object",
+      "required": [
+        "name",
+        "filter_regex",
+        "trigger_event"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Filter identifier, referenced from a port's response_filter array."
+        },
+        "filter_regex": {
+          "type": "string",
+          "description": "Regex tested against data received on the port. On match, trigger_event fires."
+        },
+        "trigger_event": {
+          "type": "string",
+          "description": "Event name to fire on match. Typically a custom event used as a key in 'rules'."
+        },
+        "$comment": {
+          "type": "string",
+          "description": "Optional inline comment for documentation. Ignored by Zoom Rooms and by the schema validator \u2014 purely human-facing."
+        }
+      }
+    },
+    "styleEntry": {
+      "type": "string",
+      "description": "Either the literal 'zr_event_only=true' or a documented dot-notation key=value override. Allowed forms (per Zoom docs and supplied examples):\n  \u2022 <deviceId>.main_method=<methodId> \u2014 set the main button on a device tile (device level only)\n  \u2022 <deviceId>.name=<displayName> \u2014 override the device's displayed name\n  \u2022 <deviceId>.<methodId>.name=<displayName> \u2014 override a method's displayed name\n  \u2022 <deviceId>.invisible=true|false \u2014 hide the entire device\n  \u2022 <deviceId>.<methodId>.invisible=true|false \u2014 hide a specific method\n  \u2022 <deviceId>.icon=<iconValue> \u2014 device-level icon\n  \u2022 <deviceId>.<methodId>.icon=<iconValue> \u2014 method-level icon\n  \u2022 <deviceId>.<methodId>.<paramId>.icon=<iconValue> \u2014 param-level icon\nIcon values must be either a built-in token (e.g. 'icon_projector' \u2014 Zoom built-ins all start with 'icon_') or an MDI reference of the form 'mdi:<icon_name>:<style_name>'. The style_name suffix is required despite the docs implying it is optional \u2014 Zoom Rooms shows no icon on web (or the default magic-wand fallback on iPad) when the variant is missing or unrecognized. Allowed style_names are filled, outlined, rounded, sharp, two_tone (all lowercase, spaces in icon_name replaced with underscores). Verified on Zoom Room 6.6.1.",
+      "pattern": "^(zr_event_only=true|[A-Za-z0-9_]+\\.main_method=.+|[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)?\\.name=.+|[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)?\\.invisible=.+|[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+){0,2}\\.icon=(icon_[A-Za-z0-9_]+|mdi:[A-Za-z0-9_]+:(filled|outlined|rounded|sharp|two_tone)))$"
+    }
+  }
+}
