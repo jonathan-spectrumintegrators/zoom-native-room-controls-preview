@@ -2,13 +2,13 @@ import { findPortMethodParam } from './validateProfile';
 
 export function formatCommand(adapter, port, method, param) {
     if (adapter.model === 'iTachIP2CC') {
-        return `${adapter.ip}: Relay ${param.position} ${param.name}`;
+        return { address: adapter.ip, command: `Relay ${param.position} ${param.name}` };
     }
     let command = method.command;
     if (method.type === 'actions' && param) {
         command = command.replace('%', param.value);
     }
-    return `${adapter.ip}: ${command}`;
+    return { address: adapter.ip, command };
 }
 
 function findAdapterForPort(json, portId) {

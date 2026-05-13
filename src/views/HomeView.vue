@@ -16,11 +16,17 @@
                     {{ target }}
                 </p>
                 <p class="zoom-output-label">Command(s):</p>
-                <p
+                <div
                     class="zoom-output-content"
                     id="zoom-output-command">
-                    {{ command }}
-                </p>
+                    <div
+                        v-for="(c, i) in commands"
+                        :key="i"
+                        class="command-row">
+                        <span class="command-address">{{ c.address }}:</span>
+                        <pre class="command-text"><span v-for="(seg, j) in splitCommand(c.command)" :key="j" :class="{ ws: seg.ws }">{{ seg.text }}</span></pre>
+                    </div>
+                </div>
             </div>
         </div>
         <div
@@ -218,7 +224,7 @@ export default {
         json: JSON.stringify(exampleJson, null, 2),
         errorMessage: '',
         target: '',
-        command: '',
+        commands: [],
         scenesExpanded: false,
     }),
     created() {
@@ -269,13 +275,30 @@ export default {
             }
         }
         },
+        splitCommand(text) {
+            const segments = [];
+            let buffer = '';
+            for (const ch of text) {
+                if (ch === ' ') {
+                    if (buffer) {
+                        segments.push({ ws: false, text: buffer });
+                        buffer = '';
+                    }
+                    segments.push({ ws: true, text: ' ' });
+                } else {
+                    buffer += ch;
+                }
+            }
+            if (buffer) segments.push({ ws: false, text: buffer });
+            return segments;
+        },
         zoomClick(adapter, port, method, param) {
             this.target = param ? `${port.id}.${method.id}.${param.id}` : `${port.id}.${method.id}`;
-            this.command = formatCommand(adapter, port, method, param);
+            this.commands = [formatCommand(adapter, port, method, param)];
         },
         sceneClick(scene) {
             this.target = scene.id;
-            this.command = scene.resolvedCommands.join('\n');
+            this.commands = scene.resolvedCommands;
         },
     },
     computed: {
@@ -354,9 +377,49 @@ $zoom-button-height: 58px;
                 text-align: left;
                 width: 100%;
                 font-size: 1rem;
-                white-space: pre-line;
+                white-space: pre-wrap;
                 max-height: 200px;
                 overflow-y: auto;
+                margin: 0;
+                font-family: inherit;
+            }
+
+            #zoom-output-command {
+                display: flex;
+                flex-direction: column;
+                gap: 0.3rem;
+
+                .command-row {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 0.4rem;
+                    flex-wrap: wrap;
+                }
+
+                .command-address {
+                    font-family: inherit;
+                }
+
+                .command-text {
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+                    background: #f4f4f5;
+                    border: 1px solid $color-border;
+                    border-radius: 4px;
+                    padding: 0.2rem 0.5rem;
+                    margin: 0;
+                    white-space: pre-wrap;
+
+                    .ws {
+                        background-image: radial-gradient(
+                            circle at center,
+                            rgba(0, 0, 0, 0.35) 1px,
+                            transparent 1.5px
+                        );
+                        background-repeat: no-repeat;
+                        background-position: center;
+                    }
+                }
             }
         }
     }
